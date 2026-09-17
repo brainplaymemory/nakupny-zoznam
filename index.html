@@ -1,2 +1,1581 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!DOCTYPE html> <html lang="sk"> <head> <meta charset="UTF-8"> <title>Nákupný zoznam – Pamäťová hra</title> <style> body { font-family: Arial, sans-serif; text-align: center; background: #f5f3ef; margin: 0; padding: 25px; } h1 { color: #555; font-size: 34px; margin-bottom: 8px; } .subtitle { font-size: 21px; color: #777; margin-bottom: 20px; } .panel { background: white; max-width: 650px; margin: 20px auto; padding: 25px; border-radius: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.10); } h2 { color: #666; font-size: 23px; } .option { display: inline-block; margin: 8px; padding: 14px 22px; background: #d8c9a8; color: white; border-radius: 12px; cursor: pointer; font-size: 18px; } .option.selected { background: #8fcf9a; } button { font-size: 18px; padding: 12px 25px; margin-top: 20px; border: none; border-radius: 10px; background: #8fcf9a; color: white; cursor: pointer; } button:hover { background: #7fc18b; } button:disabled { opacity: 0.6; cursor: default; } .hidden { display: none; } .introText { font-size: 21px; color: #666; line-height: 1.6; margin: 30px 0; } #gameTitle { color: #555; font-size: 32px; margin-top: 15px; margin-bottom: 4px; } #gameSubtitle { font-size: 20px; color: #888; margin-bottom: 8px; } #levelText { font-size: 21px; color: #777; margin-top: 8px; } #gameTime { font-size: 19px; color: #777; margin-top: 6px; font-weight: bold; } #instructions, #instructions2 { font-size: 21px; color: #555; margin: 18px auto; } #items { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; max-width: 900px; margin: 25px auto; } .item { width: 130px; height: 130px; background: white; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(0,0,0,0.12); } .itemEmoji { font-size: 50px; } .itemName { font-size: 18px; color: #666; margin-top: 7px; font-weight: bold; } #countdown { font-size: 20px; color: #777; margin-top: 12px; } #choices { display: grid; grid-template-columns: repeat(6, 130px); gap: 14px; justify-content: center; margin-top: 22px; } .choice { width: 130px; height: 130px; background: white; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.12); } .choiceEmoji { font-size: 50px; } .choiceName { font-size: 18px; color: #666; margin-top: 7px; font-weight: bold; } .choice.correct { background: #8fd18f; } .choice.wrong { background: #e8a0a0; } .choice.missed { background: #8fd18f; animation: blinkGreen 0.7s infinite; } @keyframes blinkGreen { 0%, 100% { background: #8fd18f; } 50% { background: white; } } #message { margin-top: 20px; font-size: 23px; color: #555; font-weight: bold; } #successRate { margin-top: 10px; font-size: 21px; color: #666; font-weight: bold; } #retryMessage { margin-top: 18px; font-size: 20px; color: #666; } #retryMessage p { margin: 8px 0; font-size: 18px; color: #777; } #retryButton { background: #8fcf9a; margin-top: 10px; } #confettiContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 9999; } .confetti { position: absolute; width: 10px; height: 16px; top: -20px; animation: fall linear forwards; } @keyframes fall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 1; } } </style> </head> <body> <!-- ÚVOD --> <div id="intro"> <h1>🛒 Nákupný zoznam</h1> <div class="subtitle"> Pamäťová hra </div> <div class="introText"> Pozri sa pozorne.<br> Koľko vecí si dokážeš zapamätať? </div> <button id="startIntroButton"> ▶ Začať </button> </div> <!-- NASTAVENIE --> <div id="settings" class="panel hidden"> <h2>Vyber si úroveň</h2> <div> <span class="option level selected" data-level="4"> 🟢 Ľahká – 4 veci </span> <span class="option level" data-level="6"> 🟡 Stredná – 6 vecí </span> <span class="option level" data-level="8"> 🔴 Ťažká – 8 vecí </span> </div> <h2>Čas na zapamätanie</h2> <div> <span class="option time" data-time="3"> 3 sekundy </span> <span class="option time selected" data-time="5"> 5 sekúnd </span> <span class="option time" data-time="10"> 10 sekúnd </span> <span class="option time" data-time="15"> 15 sekúnd </span> </div> <button id="startButton"> Začať hru </button> </div> <!-- HRA --> <div id="game" class="hidden"> <div id="gameTitle"> 🛒 Nákupný zoznam </div> <div id="gameSubtitle"> Pamäťová hra </div> <div id="levelText"></div> <div id="gameTime"> ⏱️ Čas hry: 0:00 </div> <div id="instructions"></div> <div id="items"></div> <div id="countdown"></div> <div id="gameArea" class="hidden"> <div id="instructions2"> Ktoré veci boli na pôvodnom zozname? </div> <div id="choices"></div> <button id="checkButton"> Skontrolovať </button> </div> <div id="message"></div> <div id="successRate"></div> <div id="retryMessage" class="hidden"> <div>🌟 Skús to ešte raz!</div> <p> Pamäť si môžeš precvičiť ďalším pokusom. </p> <button id="retryButton"> Skús ešte raz </button> </div> <button id="newGame"> Nová hra </button> </div> <div id="confettiContainer"></div> <script> const allItems = [ { emoji: "🍎", name: "jablko" }, { emoji: "🍌", name: "banán" }, { emoji: "🥛", name: "mlieko" }, { emoji: "🍞", name: "chlieb" }, { emoji: "🥚", name: "vajce" }, { emoji: "🧀", name: "syr" }, { emoji: "🥕", name: "mrkva" }, { emoji: "🍅", name: "paradajka" }, { emoji: "🥔", name: "zemiak" }, { emoji: "🍊", name: "pomaranč" }, { emoji: "🍇", name: "hrozno" }, { emoji: "🍓", name: "jahoda" } ]; let numberOfItems = 4; let memoryTime = 5; let correctItems = []; let selectedItems = []; let gameStartTime = 0; let gameTimer = null; let totalGameSeconds = 0; const intro = document.getElementById("intro"); const settings = document.getElementById("settings"); const game = document.getElementById("game"); const items = document.getElementById("items"); const choices = document.getElementById("choices"); const countdown = document.getElementById("countdown"); const gameArea = document.getElementById("gameArea"); const message = document.getElementById("message"); const successRate = document.getElementById("successRate"); const checkButton = document.getElementById("checkButton"); const levelText = document.getElementById("levelText"); const instructions = document.getElementById("instructions"); const gameTime = document.getElementById("gameTime"); const retryMessage = document.getElementById("retryMessage"); const retryButton = document.getElementById("retryButton"); const confettiContainer = document.getElementById("confettiContainer"); document.getElementById("startIntroButton").addEventListener("click", () => { intro.classList.add("hidden"); settings.classList.remove("hidden"); }); document.querySelectorAll(".level").forEach(option => { option.addEventListener("click", () => { document.querySelectorAll(".level") .forEach(x => x.classList.remove("selected")); option.classList.add("selected"); numberOfItems = Number(option.dataset.level); }); }); document.querySelectorAll(".time").forEach(option => { option.addEventListener("click", () => { document.querySelectorAll(".time") .forEach(x => x.classList.remove("selected")); option.classList.add("selected"); memoryTime = Number(option.dataset.time); }); }); document.getElementById("startButton").addEventListener("click", () => { gameStartTime = Date.now(); totalGameSeconds = 0; updateGameTime(); clearInterval(gameTimer); gameTimer = setInterval(() => { totalGameSeconds = Math.floor((Date.now() - gameStartTime) / 1000); updateGameTime(); }, 1000); startGame(); }); function updateGameTime() { const minutes = Math.floor(totalGameSeconds / 60); const seconds = totalGameSeconds % 60; gameTime.textContent = "⏱️ Čas hry: " + minutes + ":" + String(seconds).padStart(2, "0"); } function startGame() { stopConfetti(); settings.classList.add("hidden"); game.classList.remove("hidden"); items.innerHTML = ""; choices.innerHTML = ""; message.textContent = ""; successRate.textContent = ""; countdown.textContent = ""; gameArea.classList.add("hidden"); retryMessage.classList.add("hidden"); selectedItems = []; checkButton.disabled = false; if (numberOfItems === 4) { levelText.textContent = "🟢 Úroveň 1 – Ľahká"; } if (numberOfItems === 6) { levelText.textContent = "🟡 Úroveň 2 – Stredná"; } if (numberOfItems === 8) { levelText.textContent = "🔴 Úroveň 3 – Ťažká"; } instructions.textContent = "Zapamätaj si " + numberOfItems + (numberOfItems === 4 ? " veci:" : " vecí:"); const shuffled = [...allItems].sort(() => Math.random() - 0.5); correctItems = shuffled.slice(0, numberOfItems); correctItems.forEach(item => { const div = document.createElement("div"); div.className = "item"; const emoji = document.createElement("div"); emoji.className = "itemEmoji"; emoji.textContent = item.emoji; const name = document.createElement("div"); name.className = "itemName"; name.textContent = item.name; div.appendChild(emoji); div.appendChild(name); items.appendChild(div); }); let timeLeft = memoryTime; countdown.textContent = "Čas na zapamätanie: " + timeLeft; const timer = setInterval(() => { timeLeft--; if (timeLeft > 0) { countdown.textContent = "Čas na zapamätanie: " + timeLeft; } else { clearInterval(timer); items.innerHTML = ""; countdown.textContent = ""; showChoices(); } }, 1000); } function showChoices() { gameArea.classList.remove("hidden"); choices.innerHTML = ""; const shuffled = [...allItems].sort(() => Math.random() - 0.5); shuffled.forEach(item => { const div = document.createElement("div"); div.className = "choice"; div.dataset.item = item.name; const emoji = document.createElement("div"); emoji.className = "choiceEmoji"; emoji.textContent = item.emoji; const name = document.createElement("div"); name.className = "choiceName"; name.textContent = item.name; div.appendChild(emoji); div.appendChild(name); div.addEventListener("click", () => { if (checkButton.disabled) { return; } if (div.classList.contains("selected")) { div.classList.remove("selected"); div.classList.remove("correct"); div.classList.remove("wrong"); selectedItems = selectedItems.filter( x => x !== item.name ); } else { if (selectedItems.length < numberOfItems) { div.classList.add("selected"); if ( correctItems.some( x => x.name === item.name ) ) { div.classList.add("correct"); } else { div.classList.add("wrong"); } selectedItems.push(item.name); } } }); choices.appendChild(div); }); } checkButton.addEventListener("click", () => { clearInterval(gameTimer); totalGameSeconds = Math.floor( (Date.now() - gameStartTime) / 1000 ); updateGameTime(); let correct = 0; document.querySelectorAll(".choice").forEach(div => { const itemName = div.dataset.item; const isCorrect = correctItems.some( x => x.name === itemName ); if ( isCorrect && selectedItems.includes(itemName) ) { div.classList.remove("selected"); div.classList.add("correct"); correct++; } else if ( !isCorrect && selectedItems.includes(itemName) ) { div.classList.remove("selected"); div.classList.add("wrong"); } else if ( isCorrect && !selectedItems.includes(itemName) ) { div.classList.add("missed"); } }); let successPreposition; if (numberOfItems === 8) { successPreposition = "z"; } else { successPreposition = "zo"; } successRate.textContent = "📊 Úspešnosť: " + correct + " " + successPreposition + " " + numberOfItems; if ( correct === numberOfItems && selectedItems.length === numberOfItems ) { message.textContent = "🎉 Výborne! Celý nákupný zoznam!"; startConfetti(); } else { retryMessage.classList.remove("hidden"); } checkButton.disabled = true; }); retryButton.addEventListener("click", () => { gameStartTime = Date.now() - (totalGameSeconds * 1000); clearInterval(gameTimer); gameTimer = setInterval(() => { totalGameSeconds = Math.floor( (Date.now() - gameStartTime) / 1000 ); updateGameTime(); }, 1000); retryMessage.classList.add("hidden"); gameArea.classList.add("hidden"); items.innerHTML = ""; choices.innerHTML = ""; message.textContent = ""; successRate.textContent = ""; selectedItems = []; checkButton.disabled = false; startGame(); }); function startConfetti() { stopConfetti(); const confettiColors = [ "#ff595e", "#ffca3a", "#8ac926", "#1982c4", "#6a4c93", "#ff70a6" ]; for (let i = 0; i < 100; i++) { const confetti = document.createElement("div"); confetti.className = "confetti"; confetti.style.left = Math.random() * 100 + "%"; confetti.style.backgroundColor = confettiColors[ Math.floor( Math.random() * confettiColors.length ) ]; confetti.style.animationDuration = (2 + Math.random() * 3) + "s"; confetti.style.animationDelay = Math.random() * 2 + "s"; confettiContainer.appendChild(confetti); } } function stopConfetti() { confettiContainer.innerHTML = ""; } document.getElementById("newGame").addEventListener("click", () => { clearInterval(gameTimer); gameTimer = null; totalGameSeconds = 0; gameStartTime = 0; updateGameTime(); stopConfetti(); game.classList.add("hidden"); settings.classList.remove("hidden"); }); </script> </body> </html>
+<title>BrainPlayMemory – Pexeso Nákupný zoznam</title>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f7f7f7;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+    color: #333;
+}
+
+.screen {
+    display: none;
+}
+
+.screen.active {
+    display: block;
+}
+
+
+/* =========================
+   ÚVODNÁ STRÁNKA
+   ========================= */
+
+#languageScreen {
+    min-height: calc(100vh - 40px);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+#languageScreen.active {
+    display: flex;
+}
+
+.language-title {
+    margin-bottom: 10px;
+}
+
+.language-title h1 {
+    font-size: 42px;
+    margin: 0 0 12px;
+    color: #555;
+    letter-spacing: 1px;
+}
+
+.language-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+}
+
+.language-title h2 {
+    font-size: 24px;
+    font-weight: normal;
+    margin: 0;
+    color: #555;
+}
+
+.language-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 35px;
+}
+
+.language-button {
+    width: 180px;
+    height: 105px;
+    border: none;
+    border-radius: 18px;
+    font-size: 25px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.language-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 14px rgba(0,0,0,0.17);
+}
+
+.language-button:active {
+    transform: translateY(0);
+}
+
+.language-sk {
+    background: linear-gradient(
+        to bottom,
+        #ffffff 0%,
+        #ffffff 33%,
+        #dce9f5 33%,
+        #dce9f5 66%,
+        #f1c9cd 66%,
+        #f1c9cd 100%
+    );
+}
+
+.language-en {
+    background: linear-gradient(
+        to bottom,
+        #f2c4c7 0%,
+        #f2c4c7 33%,
+        #ffffff 33%,
+        #ffffff 66%,
+        #cbdced 66%,
+        #cbdced 100%
+    );
+}
+
+.language-it {
+    background: linear-gradient(
+        to bottom,
+        #d4eadb 0%,
+        #d4eadb 33%,
+        #ffffff 33%,
+        #ffffff 66%,
+        #f1cccc 66%,
+        #f1cccc 100%
+    );
+}
+
+
+/* =========================
+   NASTAVENIE
+   ========================= */
+
+h1 {
+    margin-bottom: 10px;
+}
+
+h2 {
+    margin-top: 10px;
+}
+
+button {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 16px;
+    cursor: pointer;
+    color: #333;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.setup-group {
+    margin: 20px 0;
+}
+
+.theme-buttons,
+.name-buttons,
+.level-buttons,
+.time-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+
+/* =========================
+   JEMNÉ FARBY TLAČIDIEL
+   ========================= */
+
+.theme-buttons button {
+    background: #eee4d6;
+}
+
+.name-buttons button {
+    background: #dce8f0;
+}
+
+.level-buttons button {
+    background: #dfeadf;
+}
+
+.time-buttons button {
+    background: #e7e1ed;
+}
+
+
+/* VYBRANÉ TLAČIDLO */
+
+.selected {
+    background: #cbd9d5 !important;
+    box-shadow: inset 0 0 0 2px #aebfba;
+}
+
+
+/* ZAČAŤ HRAŤ / NOVÁ HRA */
+
+.start-button {
+    background: #c8d4d8;
+    color: #333;
+    margin-top: 15px;
+}
+
+.start-button:hover {
+    background: #b9c8cd;
+}
+
+
+/* SPÄŤ */
+
+.back-button {
+    background: #e7e7e7;
+    margin-top: 20px;
+}
+
+
+/* =========================
+   HRA
+   ========================= */
+
+.instructions {
+    font-size: 21px;
+    margin: 20px 0;
+}
+
+.memory-items {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    max-width: 900px;
+    margin: 25px auto;
+}
+
+.memory-item {
+    font-size: 24px;
+    padding: 15px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 7px rgba(0,0,0,0.08);
+}
+
+.memory-item .emoji {
+    font-size: 55px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+
+/* =========================
+   ODPOVEDE
+   ========================= */
+
+.answers {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    max-width: 1100px;
+    margin: 25px auto;
+}
+
+.answer {
+    width: 175px;
+    min-height: 120px;
+    padding: 15px;
+    font-size: 18px;
+    box-sizing: border-box;
+}
+
+.answer .emoji {
+    font-size: 70px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+
+/* SPRÁVNA / NESPRÁVNA */
+
+.correct {
+    background: #b8dfb8 !important;
+}
+
+.incorrect {
+    background: #efb0b0 !important;
+}
+
+.missed {
+    background: #b8dfb8 !important;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.35;
+    }
+}
+
+
+/* =========================
+   ŠTATISTIKY
+   ========================= */
+
+.stats {
+    margin: 15px 0;
+    font-size: 17px;
+}
+
+.message {
+    min-height: 30px;
+    font-size: 20px;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+.return-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: #555;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+.return-link:hover {
+    text-decoration: underline;
+}
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     VÝBER JAZYKA
+     ========================= -->
+
+<div id="languageScreen" class="screen active">
+
+    <div class="language-title">
+
+        <div class="language-icon">🌍</div>
+
+        <h1>BrainPlayMemory</h1>
+
+        <h2>Vyber jazyk hry</h2>
+
+    </div>
+
+    <div class="language-buttons">
+
+        <button
+            class="language-button language-sk"
+            onclick="chooseLanguage('SK')">
+            🇸🇰 SK
+        </button>
+
+        <button
+            class="language-button language-en"
+            onclick="chooseLanguage('EN')">
+            🇺🇸 EN
+        </button>
+
+        <button
+            class="language-button language-it"
+            onclick="chooseLanguage('IT')">
+            🇮🇹 IT
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     NASTAVENIE HRY
+     ========================= -->
+
+<div id="setupScreen" class="screen">
+
+    <h1 id="setupTitle">Pexeso – Nákupný zoznam</h1>
+
+    <div class="setup-group">
+
+        <h2 id="themeTitle">Vyber tému</h2>
+
+        <div class="theme-buttons">
+
+            <button id="themeShopping"
+                    onclick="selectTheme('shopping')">
+                🛒 Nákupný zoznam
+            </button>
+
+            <button id="themeHousehold"
+                    onclick="selectTheme('household')">
+                🏠 Domácnosť
+            </button>
+
+            <button id="themeClothes"
+                    onclick="selectTheme('clothes')">
+                👕 Oblečenie
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="setup-group">
+
+        <h2 id="nameTitle">Jazyk názvov</h2>
+
+        <div class="name-buttons">
+
+            <button onclick="selectNameLanguage('SK')">
+                SK
+            </button>
+
+            <button onclick="selectNameLanguage('EN')">
+                EN
+            </button>
+
+            <button onclick="selectNameLanguage('IT')">
+                IT
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="setup-group">
+
+        <h2 id="levelTitle">Vyber úroveň</h2>
+
+        <div class="level-buttons">
+
+            <button onclick="selectLevel(4)">
+                Ľahká – 4 veci
+            </button>
+
+            <button onclick="selectLevel(6)">
+                Stredná – 6 vecí
+            </button>
+
+            <button onclick="selectLevel(8)">
+                Ťažká – 8 vecí
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="setup-group">
+
+        <h2 id="timeTitle">Čas na zapamätanie</h2>
+
+        <div class="time-buttons">
+
+            <button onclick="selectTime(3)">
+                3 sekundy
+            </button>
+
+            <button onclick="selectTime(5)">
+                5 sekúnd
+            </button>
+
+            <button onclick="selectTime(10)">
+                10 sekúnd
+            </button>
+
+            <button onclick="selectTime(15)">
+                15 sekúnd
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <button class="start-button"
+            onclick="startGame()"
+            id="startButton">
+        Začať hru
+    </button>
+
+    <br>
+
+    <button class="back-button"
+            onclick="showLanguageScreen()"
+            id="backButton">
+        ← Späť
+    </button>
+
+</div>
+
+
+<!-- =========================
+     HERNÁ OBRAZOVKA
+     ========================= -->
+
+<div id="gameScreen" class="screen">
+
+    <h1 id="gameTitle">
+        Pexeso – Nákupný zoznam
+    </h1>
+
+    <div id="instructions" class="instructions">
+        Zapamätaj si 4 veci
+    </div>
+
+    <div id="memoryItems" class="memory-items"></div>
+
+    <div id="answers" class="answers"></div>
+
+    <div class="stats">
+
+        <span id="attemptsLabel">
+            Pokusy:
+        </span>
+
+        <span id="attempts">
+            0
+        </span>
+
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+
+        <span id="timeLabel">
+            Čas:
+        </span>
+
+        <span id="time">
+            0:00
+        </span>
+
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+
+        <span id="bestLabel">
+            Najlepší výsledok:
+        </span>
+
+        <span id="best">
+            –
+        </span>
+
+    </div>
+
+
+    <div id="message" class="message"></div>
+
+
+    <button class="start-button"
+            onclick="newGame()"
+            id="newGameButton">
+        Nová hra
+    </button>
+
+    <br>
+
+    <a href="#"
+       class="return-link"
+       onclick="showLanguageScreen(); return false;"
+       id="returnLink">
+        ⌂ Návrat na hlavnú stránku
+    </a>
+
+</div>
+
+
+
+<script>
+
+/* =========================
+   TEXTY
+   ========================= */
+
+const texts = {
+
+    SK: {
+
+        setupTitle: "Pexeso – Nákupný zoznam",
+
+        themeTitle: "Vyber tému",
+
+        shopping: "🛒 Nákupný zoznam",
+        household: "🏠 Domácnosť",
+        clothes: "👕 Oblečenie",
+
+        nameTitle: "Jazyk názvov",
+
+        levelTitle: "Vyber úroveň",
+
+        easy: "Ľahká – 4 veci",
+        medium: "Stredná – 6 vecí",
+        hard: "Ťažká – 8 vecí",
+
+        timeTitle: "Čas na zapamätanie",
+
+        seconds3: "3 sekundy",
+        seconds5: "5 sekúnd",
+        seconds10: "10 sekúnd",
+        seconds15: "15 sekúnd",
+
+        start: "Začať hru",
+        back: "← Späť",
+
+        instructions4: "Zapamätaj si 4 veci",
+        instructions6: "Zapamätaj si 6 vecí",
+        instructions8: "Zapamätaj si 8 vecí",
+
+        attempts: "Pokusy:",
+        time: "Čas:",
+        best: "Najlepší výsledok:",
+
+        newGame: "Nová hra",
+
+        returnHome: "⌂ Návrat na hlavnú stránku",
+
+        success: "Výborne! Všetky správne!",
+
+        correct: "Správne"
+
+    },
+
+
+    EN: {
+
+        setupTitle: "Memory Game – Shopping List",
+
+        themeTitle: "Choose a theme",
+
+        shopping: "🛒 Shopping List",
+        household: "🏠 Household",
+        clothes: "👕 Clothes",
+
+        nameTitle: "Name language",
+
+        levelTitle: "Choose difficulty",
+
+        easy: "Easy – 4 items",
+        medium: "Medium – 6 items",
+        hard: "Hard – 8 items",
+
+        timeTitle: "Memory time",
+
+        seconds3: "3 seconds",
+        seconds5: "5 seconds",
+        seconds10: "10 seconds",
+        seconds15: "15 seconds",
+
+        start: "Start game",
+        back: "← Back",
+
+        instructions4: "Remember 4 items",
+        instructions6: "Remember 6 items",
+        instructions8: "Remember 8 items",
+
+        attempts: "Attempts:",
+        time: "Time:",
+        best: "Best result:",
+
+        newGame: "New game",
+
+        returnHome: "⌂ Return to main page",
+
+        success: "Excellent! All correct!",
+
+        correct: "Correct"
+
+    },
+
+
+    IT: {
+
+        setupTitle: "Gioco di memoria – Lista della spesa",
+
+        themeTitle: "Scegli un tema",
+
+        shopping: "🛒 Lista della spesa",
+        household: "🏠 Casa",
+        clothes: "👕 Abbigliamento",
+
+        nameTitle: "Lingua dei nomi",
+
+        levelTitle: "Scegli il livello",
+
+        easy: "Facile – 4 oggetti",
+        medium: "Medio – 6 oggetti",
+        hard: "Difficile – 8 oggetti",
+
+        timeTitle: "Tempo per memorizzare",
+
+        seconds3: "3 secondi",
+        seconds5: "5 secondi",
+        seconds10: "10 secondi",
+        seconds15: "15 secondi",
+
+        start: "Inizia il gioco",
+        back: "← Indietro",
+
+        instructions4: "Memorizza 4 oggetti",
+        instructions6: "Memorizza 6 oggetti",
+        instructions8: "Memorizza 8 oggetti",
+
+        attempts: "Tentativi:",
+        time: "Tempo:",
+        best: "Miglior risultato:",
+
+        newGame: "Nuova partita",
+
+        returnHome: "⌂ Torna alla pagina principale",
+
+        success: "Ottimo! Tutto corretto!",
+
+        correct: "Corrette"
+
+    }
+
+};
+
+
+/* =========================
+   PREDMETY
+   ========================= */
+
+const items = {
+
+    shopping: {
+
+        SK: [
+            ["🍎", "jablko"],
+            ["🍌", "banán"],
+            ["🥛", "mlieko"],
+            ["🍞", "chlieb"],
+            ["🧀", "syr"],
+            ["🥚", "vajcia"],
+            ["🍅", "paradajka"],
+            ["🥕", "mrkva"],
+            ["🍗", "kurča"],
+            ["🍚", "ryža"],
+            ["🍫", "čokoláda"],
+            ["🧃", "džús"]
+        ],
+
+        EN: [
+            ["🍎", "apple"],
+            ["🍌", "banana"],
+            ["🥛", "milk"],
+            ["🍞", "bread"],
+            ["🧀", "cheese"],
+            ["🥚", "eggs"],
+            ["🍅", "tomato"],
+            ["🥕", "carrot"],
+            ["🍗", "chicken"],
+            ["🍚", "rice"],
+            ["🍫", "chocolate"],
+            ["🧃", "juice"]
+        ],
+
+        IT: [
+            ["🍎", "mela"],
+            ["🍌", "banana"],
+            ["🥛", "latte"],
+            ["🍞", "pane"],
+            ["🧀", "formaggio"],
+            ["🥚", "uova"],
+            ["🍅", "pomodoro"],
+            ["🥕", "carota"],
+            ["🍗", "pollo"],
+            ["🍚", "riso"],
+            ["🍫", "cioccolato"],
+            ["🧃", "succo"]
+        ]
+
+    },
+
+
+    household: {
+
+        SK: [
+            ["🧹", "metla"],
+            ["🧽", "špongia"],
+            ["🧴", "čistiaci prostriedok"],
+            ["🧺", "košík"],
+            ["🧻", "toaletný papier"],
+            ["🪣", "vedro"],
+            ["🧼", "mydlo"],
+            ["🪥", "zubná kefka"],
+            ["🧯", "hasiaci prístroj"],
+            ["💡", "žiarovka"],
+            ["🕯️", "sviečka"],
+            ["🧤", "rukavice"]
+        ],
+
+        EN: [
+            ["🧹", "broom"],
+            ["🧽", "sponge"],
+            ["🧴", "cleaner"],
+            ["🧺", "basket"],
+            ["🧻", "toilet paper"],
+            ["🪣", "bucket"],
+            ["🧼", "soap"],
+            ["🪥", "toothbrush"],
+            ["🧯", "fire extinguisher"],
+            ["💡", "light bulb"],
+            ["🕯️", "candle"],
+            ["🧤", "gloves"]
+        ],
+
+        IT: [
+            ["🧹", "scopa"],
+            ["🧽", "spugna"],
+            ["🧴", "detergente"],
+            ["🧺", "cesto"],
+            ["🧻", "carta igienica"],
+            ["🪣", "secchio"],
+            ["🧼", "sapone"],
+            ["🪥", "spazzolino"],
+            ["🧯", "estintore"],
+            ["💡", "lampadina"],
+            ["🕯️", "candela"],
+            ["🧤", "guanti"]
+        ]
+
+    },
+
+
+    clothes: {
+
+        SK: [
+            ["👕", "tričko"],
+            ["👖", "nohavice"],
+            ["👗", "šaty"],
+            ["🧥", "kabát"],
+            ["🧦", "ponožky"],
+            ["🧢", "čiapka"],
+            ["👟", "tenisky"],
+            ["👞", "topánky"],
+            ["🧤", "rukavice"],
+            ["🧣", "šál"],
+            ["🩳", "kraťasy"],
+            ["👜", "kabelka"]
+        ],
+
+        EN: [
+            ["👕", "shirt"],
+            ["👖", "pants"],
+            ["👗", "dress"],
+            ["🧥", "coat"],
+            ["🧦", "socks"],
+            ["🧢", "cap"],
+            ["👟", "sneakers"],
+            ["👞", "shoes"],
+            ["🧤", "gloves"],
+            ["🧣", "scarf"],
+            ["🩳", "shorts"],
+            ["👜", "handbag"]
+        ],
+
+        IT: [
+            ["👕", "maglietta"],
+            ["👖", "pantaloni"],
+            ["👗", "vestito"],
+            ["🧥", "cappotto"],
+            ["🧦", "calzini"],
+            ["🧢", "cappellino"],
+            ["👟", "scarpe da ginnastica"],
+            ["👞", "scarpe"],
+            ["🧤", "guanti"],
+            ["🧣", "sciarpa"],
+            ["🩳", "pantaloncini"],
+            ["👜", "borsa"]
+        ]
+
+    }
+
+};
+
+
+/* =========================
+   PREMENNÉ
+   ========================= */
+
+let currentLanguage = "SK";
+
+let selectedTheme = "shopping";
+
+let selectedNameLanguage = "SK";
+
+let selectedLevel = 4;
+
+let selectedTime = 5;
+
+let currentItems = [];
+
+let selectedAnswers = [];
+
+let attempts = 0;
+
+let startTime = 0;
+
+let timerInterval = null;
+
+let gameFinished = false;
+
+let bestAttempts = null;
+
+let bestTime = null;
+
+
+/* =========================
+   VÝBER JAZYKA
+   ========================= */
+
+function chooseLanguage(language) {
+
+    currentLanguage = language;
+
+    document.getElementById("languageScreen")
+        .classList.remove("active");
+
+    document.getElementById("setupScreen")
+        .classList.add("active");
+
+    updateTexts();
+}
+
+
+/* =========================
+   NÁVRAT NA HLAVNÚ STRÁNKU
+   ========================= */
+
+function showLanguageScreen() {
+
+    clearInterval(timerInterval);
+
+    document.getElementById("setupScreen")
+        .classList.remove("active");
+
+    document.getElementById("gameScreen")
+        .classList.remove("active");
+
+    document.getElementById("languageScreen")
+        .classList.add("active");
+}
+
+
+/* =========================
+   PREKLADY
+   ========================= */
+
+function updateTexts() {
+
+    const t = texts[currentLanguage];
+
+    document.getElementById("setupTitle").textContent =
+        t.setupTitle;
+
+    document.getElementById("themeTitle").textContent =
+        t.themeTitle;
+
+    document.getElementById("themeShopping").textContent =
+        t.shopping;
+
+    document.getElementById("themeHousehold").textContent =
+        t.household;
+
+    document.getElementById("themeClothes").textContent =
+        t.clothes;
+
+    document.getElementById("nameTitle").textContent =
+        t.nameTitle;
+
+    document.getElementById("levelTitle").textContent =
+        t.levelTitle;
+
+    document.getElementById("timeTitle").textContent =
+        t.timeTitle;
+
+    document.querySelector(
+        ".level-buttons button:nth-child(1)"
+    ).textContent = t.easy;
+
+    document.querySelector(
+        ".level-buttons button:nth-child(2)"
+    ).textContent = t.medium;
+
+    document.querySelector(
+        ".level-buttons button:nth-child(3)"
+    ).textContent = t.hard;
+
+    document.querySelector(
+        ".time-buttons button:nth-child(1)"
+    ).textContent = t.seconds3;
+
+    document.querySelector(
+        ".time-buttons button:nth-child(2)"
+    ).textContent = t.seconds5;
+
+    document.querySelector(
+        ".time-buttons button:nth-child(3)"
+    ).textContent = t.seconds10;
+
+    document.querySelector(
+        ".time-buttons button:nth-child(4)"
+    ).textContent = t.seconds15;
+
+    document.getElementById("startButton").textContent =
+        t.start;
+
+    document.getElementById("backButton").textContent =
+        t.back;
+
+    document.getElementById("newGameButton").textContent =
+        t.newGame;
+
+    document.getElementById("returnLink").textContent =
+        t.returnHome;
+}
+
+
+/* =========================
+   TÉMA
+   ========================= */
+
+function selectTheme(theme) {
+
+    selectedTheme = theme;
+
+    document.querySelectorAll(".theme-buttons button")
+        .forEach(button => {
+            button.classList.remove("selected");
+        });
+
+    if (theme === "shopping") {
+        document.getElementById("themeShopping")
+            .classList.add("selected");
+    }
+
+    if (theme === "household") {
+        document.getElementById("themeHousehold")
+            .classList.add("selected");
+    }
+
+    if (theme === "clothes") {
+        document.getElementById("themeClothes")
+            .classList.add("selected");
+    }
+}
+
+
+/* =========================
+   JAZYK NÁZOV
+   ========================= */
+
+function selectNameLanguage(language) {
+
+    selectedNameLanguage = language;
+
+    document.querySelectorAll(".name-buttons button")
+        .forEach(button => {
+            button.classList.remove("selected");
+        });
+
+    const buttons =
+        document.querySelectorAll(".name-buttons button");
+
+    if (language === "SK") {
+        buttons[0].classList.add("selected");
+    }
+
+    if (language === "EN") {
+        buttons[1].classList.add("selected");
+    }
+
+    if (language === "IT") {
+        buttons[2].classList.add("selected");
+    }
+}
+
+
+/* =========================
+   ÚROVEŇ
+   ========================= */
+
+function selectLevel(level) {
+
+    selectedLevel = level;
+
+    document.querySelectorAll(".level-buttons button")
+        .forEach(button => {
+            button.classList.remove("selected");
+        });
+
+    const buttons =
+        document.querySelectorAll(".level-buttons button");
+
+    if (level === 4) {
+        buttons[0].classList.add("selected");
+    }
+
+    if (level === 6) {
+        buttons[1].classList.add("selected");
+    }
+
+    if (level === 8) {
+        buttons[2].classList.add("selected");
+    }
+}
+
+
+/* =========================
+   ČAS
+   ========================= */
+
+function selectTime(time) {
+
+    selectedTime = time;
+
+    document.querySelectorAll(".time-buttons button")
+        .forEach(button => {
+            button.classList.remove("selected");
+        });
+
+    const buttons =
+        document.querySelectorAll(".time-buttons button");
+
+    if (time === 3) {
+        buttons[0].classList.add("selected");
+    }
+
+    if (time === 5) {
+        buttons[1].classList.add("selected");
+    }
+
+    if (time === 10) {
+        buttons[2].classList.add("selected");
+    }
+
+    if (time === 15) {
+        buttons[3].classList.add("selected");
+    }
+}
+
+
+/* =========================
+   ZAČIATOK HRY
+   ========================= */
+
+function startGame() {
+
+    document.getElementById("setupScreen")
+        .classList.remove("active");
+
+    document.getElementById("gameScreen")
+        .classList.add("active");
+
+    newGame();
+}
+
+
+/* =========================
+   NOVÁ HRA
+   ========================= */
+
+function newGame() {
+
+    clearInterval(timerInterval);
+
+    attempts = 0;
+
+    selectedAnswers = [];
+
+    gameFinished = false;
+
+    const source =
+        items[selectedTheme][selectedNameLanguage];
+
+    const shuffled =
+        [...source].sort(() => Math.random() - 0.5);
+
+    currentItems =
+        shuffled.slice(0, selectedLevel);
+
+    const t = texts[currentLanguage];
+
+    let instruction =
+        t.instructions4;
+
+    if (selectedLevel === 6) {
+        instruction = t.instructions6;
+    }
+
+    if (selectedLevel === 8) {
+        instruction = t.instructions8;
+    }
+
+    document.getElementById("instructions")
+        .textContent = instruction;
+
+    document.getElementById("message")
+        .textContent = "";
+
+    document.getElementById("memoryItems")
+        .innerHTML = "";
+
+    document.getElementById("answers")
+        .innerHTML = "";
+
+    updateStats();
+
+    showMemory();
+}
+
+
+/* =========================
+   ZOBRAZENIE VECÍ
+   ========================= */
+
+function showMemory() {
+
+    const container =
+        document.getElementById("memoryItems");
+
+    currentItems.forEach(item => {
+
+        const div =
+            document.createElement("div");
+
+        div.className = "memory-item";
+
+        div.innerHTML =
+            `<span class="emoji">${item[0]}</span>${item[1]}`;
+
+        container.appendChild(div);
+    });
+
+    setTimeout(() => {
+
+        container.innerHTML = "";
+
+        showAnswers();
+
+        startTimer();
+
+    }, selectedTime * 1000);
+}
+
+
+/* =========================
+   ODPOVEDE
+   ========================= */
+
+function showAnswers() {
+
+    const container =
+        document.getElementById("answers");
+
+    const allItems =
+        items[selectedTheme][selectedNameLanguage];
+
+    const correctItems =
+        [...currentItems];
+
+    const wrongItems =
+        allItems
+        .filter(item =>
+            !currentItems.some(
+                correct => correct[1] === item[1]
+            )
+        )
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 4);
+
+    const answerItems =
+        [...correctItems, ...wrongItems]
+        .sort(() => Math.random() - 0.5);
+
+    answerItems.forEach(item => {
+
+        const button =
+            document.createElement("button");
+
+        button.className = "answer";
+
+        button.dataset.answer = item[1];
+
+        button.innerHTML =
+            `<span class="emoji">${item[0]}</span>${item[1]}`;
+
+        button.onclick = () =>
+            selectAnswer(button, item);
+
+        container.appendChild(button);
+    });
+}
+
+
+/* =========================
+   VÝBER ODPOVEDE
+   ========================= */
+
+function selectAnswer(button, item) {
+
+    if (gameFinished) {
+        return;
+    }
+
+    if (selectedAnswers.includes(item[1])) {
+        return;
+    }
+
+    if (attempts >= selectedLevel) {
+        return;
+    }
+
+    selectedAnswers.push(item[1]);
+
+    attempts++;
+
+    const correct =
+        currentItems.some(
+            x => x[1] === item[1]
+        );
+
+    if (correct) {
+
+        button.classList.add("correct");
+
+    } else {
+
+        button.classList.add("incorrect");
+
+    }
+
+    updateStats();
+
+    if (attempts === selectedLevel) {
+
+        finishGame();
+
+    }
+}
+
+
+/* =========================
+   VYHODNOTENIE HRY
+   ========================= */
+
+function finishGame() {
+
+    if (gameFinished) {
+        return;
+    }
+
+    gameFinished = true;
+
+    clearInterval(timerInterval);
+
+    const correctAnswers =
+        selectedAnswers.filter(answer =>
+            currentItems.some(
+                item => item[1] === answer
+            )
+        ).length;
+
+
+    document.querySelectorAll(".answer")
+        .forEach(button => {
+
+            const answer =
+                button.dataset.answer;
+
+            const isCorrect =
+                currentItems.some(
+                    item => item[1] === answer
+                );
+
+            const wasSelected =
+                selectedAnswers.includes(answer);
+
+            if (isCorrect && !wasSelected) {
+
+                button.classList.add("missed");
+
+            }
+        });
+
+
+    const t =
+        texts[currentLanguage];
+
+
+    /*
+       ÚPLNE SPRÁVNE
+    */
+
+    if (correctAnswers === currentItems.length) {
+
+        document.getElementById("message")
+            .textContent = t.success;
+
+
+        /*
+           SILNÉ KONFETY ZHORA
+        */
+
+        if (typeof confetti === "function") {
+
+            const duration = 3000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+
+                confetti({
+                    particleCount: 12,
+                    angle: 60,
+                    spread: 65,
+                    startVelocity: 38,
+                    gravity: 0.75,
+                    ticks: 250,
+                    origin: {
+                        x: 0,
+                        y: 0
+                    }
+                });
+
+                confetti({
+                    particleCount: 12,
+                    angle: 120,
+                    spread: 65,
+                    startVelocity: 38,
+                    gravity: 0.75,
+                    ticks: 250,
+                    origin: {
+                        x: 1,
+                        y: 0
+                    }
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+
+            }());
+
+        }
+
+    } else {
+
+        /*
+           ČIASTOČNÝ VÝSLEDOK
+        */
+
+        document.getElementById("message")
+            .textContent =
+            `${t.correct} ${correctAnswers}/${currentItems.length}`;
+    }
+
+
+    const elapsedSeconds =
+        Math.floor(
+            (Date.now() - startTime) / 1000
+        );
+
+
+    if (
+        bestAttempts === null ||
+        attempts < bestAttempts
+    ) {
+
+        bestAttempts = attempts;
+
+        bestTime = elapsedSeconds;
+
+    }
+
+
+    updateStats();
+}
+
+
+/* =========================
+   ČASOVAČ
+   ========================= */
+
+function startTimer() {
+
+    startTime = Date.now();
+
+    clearInterval(timerInterval);
+
+    timerInterval =
+        setInterval(() => {
+
+            if (gameFinished) {
+                return;
+            }
+
+            const elapsed =
+                Math.floor(
+                    (Date.now() - startTime) / 1000
+                );
+
+            const minutes =
+                Math.floor(elapsed / 60);
+
+            const seconds =
+                String(elapsed % 60)
+                .padStart(2, "0");
+
+            document.getElementById("time")
+                .textContent =
+                `${minutes}:${seconds}`;
+
+        }, 1000);
+}
+
+
+/* =========================
+   ŠTATISTIKY
+   ========================= */
+
+function updateStats() {
+
+    const t =
+        texts[currentLanguage];
+
+    document.getElementById("attemptsLabel")
+        .textContent = t.attempts;
+
+    document.getElementById("timeLabel")
+        .textContent = t.time;
+
+    document.getElementById("bestLabel")
+        .textContent = t.best;
+
+    document.getElementById("attempts")
+        .textContent = attempts;
+
+
+    if (bestAttempts === null) {
+
+        document.getElementById("best")
+            .textContent = "–";
+
+    } else {
+
+        const minutes =
+            Math.floor(bestTime / 60);
+
+        const seconds =
+            String(bestTime % 60)
+            .padStart(2, "0");
+
+        document.getElementById("best")
+            .textContent =
+            `${bestAttempts} / ${minutes}:${seconds}`;
+    }
+}
+
+</script>
+
+</body>
+</html>
