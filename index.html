@@ -435,7 +435,16 @@ h2 {
     .message {
         font-size: 18px;
     }
+.mobile-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+}
 
+.mobile-actions button {
+    margin: 0;
+}
 }
 </style>
 </head>
@@ -592,13 +601,13 @@ h2 {
     </div>
 
 
+<div class="mobile-actions">
+
     <button class="start-button"
             onclick="startGame()"
             id="startButton">
         Začať hru
     </button>
-
-    <br>
 
     <button class="back-button"
             onclick="showLanguageScreen()"
