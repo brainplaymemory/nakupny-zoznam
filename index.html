@@ -435,16 +435,35 @@ h2 {
     .message {
         font-size: 18px;
     }
-.mobile-actions {
+.mobile-setup {
     display: flex;
     justify-content: center;
-    gap: 8px;
+    align-items: flex-start;
+    gap: 20px;
     margin-top: 10px;
+}
+
+.mobile-setup .setup-group {
+    margin: 0;
+}
+
+.mobile-setup .time-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.mobile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 46px;
 }
 
 .mobile-actions button {
     margin: 0;
-}
+
 }
 </style>
 </head>
@@ -502,6 +521,7 @@ h2 {
 
     <h1 id="setupTitle">Pexeso – Nákupný zoznam</h1>
 
+   
     <div class="setup-group">
 
         <h2 id="themeTitle">Vyber tému</h2>
@@ -573,6 +593,7 @@ h2 {
 
     </div>
 
+<div class="mobile-setup">
 
     <div class="setup-group">
 
@@ -600,21 +621,25 @@ h2 {
 
     </div>
 
+    <div class="mobile-actions">
 
-<div class="mobile-actions">
+        <button class="start-button"
+                onclick="startGame()"
+                id="startButton">
+            Začať hru
+        </button>
 
-    <button class="start-button"
-            onclick="startGame()"
-            id="startButton">
-        Začať hru
-    </button>
+        <button class="back-button"
+                onclick="showLanguageScreen()"
+                id="backButton">
+            ← Späť
+        </button>
 
-    <button class="back-button"
-            onclick="showLanguageScreen()"
-            id="backButton">
-        ← Späť
-    </button>
+    </div>
 
+</div>
+
+     
 </div>
 
 
