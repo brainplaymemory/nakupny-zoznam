@@ -465,6 +465,26 @@ h2 {
     margin: 0;
 
 }
+.result-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+@media (max-width: 600px) {
+
+    .result-actions {
+        margin-top: -25px;
+    }
+
+    .result-actions .return-link,
+    .result-actions .start-button {
+        margin: 0;
+    }
+
+}
 </style>
 </head>
 
@@ -694,16 +714,9 @@ h2 {
     </div>
 
 
-    <div id="message" class="message"></div>
+<div id="message" class="message"></div>
 
-
-    <button class="start-button"
-            onclick="newGame()"
-            id="newGameButton">
-        Nová hra
-    </button>
-
-    <br>
+<div class="result-actions">
 
     <a href="#"
        class="return-link"
@@ -712,7 +725,13 @@ h2 {
         ⌂ Návrat na hlavnú stránku
     </a>
 
-</div>
+    <button class="start-button"
+            onclick="newGame()"
+            id="newGameButton">
+        Nová hra
+    </button>
+
+</div></div>
 
 
 
