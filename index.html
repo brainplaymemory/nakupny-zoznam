@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>BrainPlayMemory – Pexeso Nákupný zoznam</title>
+<title>BrainPlayMemory – Nákupný zoznam – Pamäť</title>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
@@ -539,10 +539,9 @@ h2 {
 
 <div id="setupScreen" class="screen">
 
-    <h1 id="setupTitle">Pexeso – Nákupný zoznam</h1>
-
-   
-    <div class="setup-group">
+  <h1 id="setupTitle">Nákupný zoznam – Pamäť</h1>
+  
+        <div class="setup-group">
 
         <h2 id="themeTitle">Vyber tému</h2>
 
@@ -669,9 +668,9 @@ h2 {
 
 <div id="gameScreen" class="screen">
 
-    <h1 id="gameTitle">
-        Pexeso – Nákupný zoznam
-    </h1>
+   <h1 id="gameTitle">
+    Nákupný zoznam – Pamäť
+</h1>
 
     <div id="instructions" class="instructions">
         Zapamätaj si 4 veci
@@ -745,7 +744,7 @@ const texts = {
 
     SK: {
 
-        setupTitle: "Pexeso – Nákupný zoznam",
+        setupTitle: "Nákupný zoznam – Pamäť",
 
         themeTitle: "Vyber tému",
 
@@ -781,7 +780,7 @@ const texts = {
 
         newGame: "Nová hra",
 
-        returnHome: "⌂ Návrat na hlavnú stránku",
+        returnHome: "⌂ Domov",
 
         success: "Výborne! Všetky správne!",
 
@@ -792,7 +791,7 @@ const texts = {
 
     EN: {
 
-        setupTitle: "Memory Game – Shopping List",
+        setupTitle: "Shopping List – Memory",
 
         themeTitle: "Choose a theme",
 
@@ -828,7 +827,7 @@ const texts = {
 
         newGame: "New game",
 
-        returnHome: "⌂ Return to main page",
+        returnHome: "⌂ Home",
 
         success: "Excellent! All correct!",
 
@@ -839,7 +838,7 @@ const texts = {
 
     IT: {
 
-        setupTitle: "Gioco di memoria – Lista della spesa",
+        setupTitle: "Lista della spesa – Memoria",
 
         themeTitle: "Scegli un tema",
 
@@ -875,7 +874,7 @@ const texts = {
 
         newGame: "Nuova partita",
 
-        returnHome: "⌂ Torna alla pagina principale",
+        returnHome: "⌂ Home",
 
         success: "Ottimo! Tutto corretto!",
 
@@ -1122,6 +1121,9 @@ function updateTexts() {
 
     document.getElementById("setupTitle").textContent =
         t.setupTitle;
+    
+    document.getElementById("gameTitle").textContent =
+    t.setupTitle;
 
     document.getElementById("themeTitle").textContent =
         t.themeTitle;
