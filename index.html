@@ -427,6 +427,10 @@ h2 {
     .answer .emoji {
         font-size: 50px;
     }
+    
+    .answers.compact .emoji {
+    font-size: 35px;
+    }
 
     .stats {
         font-size: 14px;
@@ -1424,6 +1428,8 @@ function showAnswers() {
 
     const container =
         document.getElementById("answers");
+ 
+    container.classList.toggle("compact", selectedLevel >= 6);
 
     const allItems =
         items[selectedTheme][selectedNameLanguage];
