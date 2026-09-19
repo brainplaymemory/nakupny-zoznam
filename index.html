@@ -416,7 +416,7 @@ button:hover {
     }
 
 
-    /* 4 VECI – JEDEN POD DRUHÝM */
+    /* 4 VECI – 1 + 1 + 1 + 1 */
 
     .memory-items.four-items {
         display: flex;
@@ -427,7 +427,7 @@ button:hover {
     }
 
 
-    /* 6 VECÍ – 2 + 2 + 2 */
+    /* 6 A 8 VECÍ – 2 + 2 + 2 */
 
     .memory-items.six-items {
         display: grid;
@@ -471,28 +471,32 @@ button:hover {
         font-size: 50px;
     }
 
-   .answers.eight-items {
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 5px;
-    max-width: 350px;
-    margin: 10px auto;
-}
 
-.answers.eight-items .answer {
-    width: auto;
-    min-height: 58px;
-    padding: 2px;
-    font-size: 14px;
-}
+    /* 8 VECÍ – KONTROLA 3 + 3 + 3 + 3 */
 
-.answers.eight-items .emoji {
-    font-size: 42px;
-    margin-bottom: 2px;
-}
+    .answers.eight-items {
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 5px;
+        max-width: 350px;
+        margin: 10px auto;
+    }
+
+    .answers.eight-items .answer {
+        width: 100%;
+        min-height: 58px;
+        padding: 2px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .answers.eight-items .emoji {
+        font-size: 42px;
+        margin-bottom: 2px;
+    }
 
 
-    /* 4 VECI – VÄČŠIE RÁMČEKY */
+    /* 4 VECI – KONTROLNÉ RÁMČEKY */
 
     .answers:not(.compact) .answer {
         min-height: 100px;
@@ -1475,7 +1479,7 @@ function showMemory() {
 
     container.classList.toggle(
         "six-items",
-        selectedLevel = 6
+        selectedLevel >= 6
     );
 
     container.classList.toggle(
@@ -1519,12 +1523,12 @@ function showAnswers() {
 
     container.classList.toggle(
         "compact",
-        selectedLevel >= 6
+        currentItems.length >= 6
     );
 
     container.classList.toggle(
-    "eight-items",
-    selectedLevel === 8
+        "eight-items",
+        currentItems.length === 8
     );
 
     const allItems =
@@ -1581,7 +1585,7 @@ function selectAnswer(button, item) {
         return;
     }
 
-    if (attempts >= selectedLevel) {
+    if (attempts >= currentItems.length) {
         return;
     }
 
@@ -1606,7 +1610,7 @@ function selectAnswer(button, item) {
 
     updateStats();
 
-    if (attempts === selectedLevel) {
+    if (attempts >= currentItems.length) {
 
         finishGame();
 
