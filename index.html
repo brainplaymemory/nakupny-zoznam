@@ -416,7 +416,7 @@ button:hover {
     }
 
 
-    /* 4 VECI – 1 + 1 + 1 + 1 */
+    /* 4 VECI – JEDEN POD DRUHÝM */
 
     .memory-items.four-items {
         display: flex;
@@ -427,7 +427,7 @@ button:hover {
     }
 
 
-    /* 6 A 8 VECÍ – 2 + 2 + 2 */
+    /* 6 VECÍ – 2 + 2 + 2 */
 
     .memory-items.six-items {
         display: grid;
@@ -460,7 +460,7 @@ button:hover {
     }
 
 
-    /* 6 A 8 VECÍ – MENŠIE RÁMČEKY */
+    /* 6 VECÍ – MENŠIE RÁMČEKY */
 
     .answers.compact .answer {
         min-height: 65px;
@@ -472,22 +472,21 @@ button:hover {
     }
 
 
-    /* 8 VECÍ – KONTROLA 3 + 3 + 3 + 3 */
+    /* 8 VECÍ – 3 STĹPCE */
 
     .answers.eight-items {
-        display: grid !important;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
         gap: 5px;
         max-width: 350px;
         margin: 10px auto;
     }
 
     .answers.eight-items .answer {
-        width: 100%;
+        width: auto;
         min-height: 58px;
         padding: 2px;
         font-size: 14px;
-        box-sizing: border-box;
     }
 
     .answers.eight-items .emoji {
@@ -496,14 +495,14 @@ button:hover {
     }
 
 
-    /* 4 VECI – KONTROLNÉ RÁMČEKY */
+    /* 4 VECI – VÄČŠIE RÁMČEKY */
 
-    .answers:not(.compact) .answer {
+    .answers:not(.compact):not(.eight-items) .answer {
         min-height: 100px;
         padding: 5px;
     }
 
-    .answers:not(.compact) .emoji {
+    .answers:not(.compact):not(.eight-items) .emoji {
         font-size: 50px;
     }
 
@@ -726,16 +725,16 @@ button:hover {
 
         <div class="mobile-actions">
 
-            <button class="start-button"
-                    onclick="startGame()"
-                    id="startButton">
-                Začať hru
-            </button>
-
             <button class="back-button"
                     onclick="showLanguageScreen()"
                     id="backButton">
                 ⌂ Domov
+            </button>
+
+            <button class="start-button"
+                    onclick="startGame()"
+                    id="startButton">
+                Začať hru
             </button>
 
         </div>
@@ -1134,30 +1133,39 @@ const items = {
    ========================= */
 
 let currentLanguage = "SK";
-
 let selectedTheme = "shopping";
-
 let selectedNameLanguage = "SK";
-
 let selectedLevel = 4;
-
 let selectedTime = 5;
-
 let currentItems = [];
-
 let selectedAnswers = [];
-
 let attempts = 0;
-
 let startTime = 0;
-
 let timerInterval = null;
-
 let gameFinished = false;
-
+let confettiRunning = false;
+let confettiAnimationFrame = null;
 let bestAttempts = null;
-
 let bestTime = null;
+
+
+/* =========================
+   ZASTAVENIE KONFET
+   ========================= */
+
+function stopConfetti() {
+
+    confettiRunning = false;
+
+    if (confettiAnimationFrame !== null) {
+        cancelAnimationFrame(confettiAnimationFrame);
+        confettiAnimationFrame = null;
+    }
+
+    if (typeof confetti === "function") {
+        confetti.reset();
+    }
+}
 
 
 /* =========================
@@ -1184,7 +1192,11 @@ function chooseLanguage(language) {
 
 function showLanguageScreen() {
 
+    stopConfetti();
+
     clearInterval(timerInterval);
+
+    gameFinished = true;
 
     document.getElementById("setupScreen")
         .classList.remove("active");
@@ -1404,6 +1416,8 @@ function selectTime(time) {
 
 function startGame() {
 
+    stopConfetti();
+
     document.getElementById("setupScreen")
         .classList.remove("active");
 
@@ -1419,6 +1433,8 @@ function startGame() {
    ========================= */
 
 function newGame() {
+
+    stopConfetti();
 
     clearInterval(timerInterval);
 
@@ -1479,7 +1495,7 @@ function showMemory() {
 
     container.classList.toggle(
         "six-items",
-        selectedLevel >= 6
+        selectedLevel === 6
     );
 
     container.classList.toggle(
@@ -1523,12 +1539,12 @@ function showAnswers() {
 
     container.classList.toggle(
         "compact",
-        currentItems.length >= 6
+        selectedLevel === 6
     );
 
     container.classList.toggle(
         "eight-items",
-        currentItems.length === 8
+        selectedLevel === 8
     );
 
     const allItems =
@@ -1585,7 +1601,7 @@ function selectAnswer(button, item) {
         return;
     }
 
-    if (attempts >= currentItems.length) {
+    if (attempts >= selectedLevel) {
         return;
     }
 
@@ -1610,7 +1626,7 @@ function selectAnswer(button, item) {
 
     updateStats();
 
-    if (attempts >= currentItems.length) {
+    if (attempts === selectedLevel) {
 
         finishGame();
 
@@ -1674,10 +1690,40 @@ function finishGame() {
 
         if (typeof confetti === "function") {
 
+            stopConfetti();
+
             const duration = 3000;
             const end = Date.now() + duration;
 
+            confettiRunning = true;
+
+
+            setTimeout(() => {
+
+                if (!confettiRunning) {
+                    return;
+                }
+
+                confetti({
+                    particleCount: 30,
+                    spread: 70,
+                    startVelocity: 40,
+                    gravity: 0.75,
+                    ticks: 250,
+                    origin: {
+                        x: 0.5,
+                        y: 0
+                    }
+                });
+
+            }, 50);
+
+
             (function frame() {
+
+                if (!confettiRunning) {
+                    return;
+                }
 
                 confetti({
                     particleCount: 12,
@@ -1705,8 +1751,16 @@ function finishGame() {
                     }
                 });
 
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame);
+                if (Date.now() < end && confettiRunning) {
+
+                    confettiAnimationFrame =
+                        requestAnimationFrame(frame);
+
+                } else {
+
+                    confettiRunning = false;
+                    confettiAnimationFrame = null;
+
                 }
 
             }());
@@ -1718,6 +1772,7 @@ function finishGame() {
         document.getElementById("message")
             .textContent =
             `${t.correct} ${correctAnswers}/${currentItems.length}`;
+
     }
 
 
